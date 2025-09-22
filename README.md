@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import "./index.css"; // make sure this line exists
 
 export default function App() {
   const [books, setBooks] = useState([
@@ -6,185 +7,105 @@ export default function App() {
     { id: 2, title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
     { id: 3, title: "To Kill a Mockingbird", author: "Harper Lee" },
   ]);
-  const [query, setQuery] = useState("");
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
 
-  const filtered = useMemo(() => {
+  const [query, setQuery] = useState("");
+  const [newTitle, setNewTitle] = useState("");
+  const [newAuthor, setNewAuthor] = useState("");
+
+  const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return books;
-    return books.filter(
-      (b) =>
-        b.title.toLowerCase().includes(q) ||
-        b.author.toLowerCase().includes(q)
-    );
-  }, [books, query]); // real-time filtering [web:64]
+    return q
+      ? books.filter(
+          (b) =>
+            b.title.toLowerCase().includes(q) ||
+            b.author.toLowerCase().includes(q)
+        )
+      : books;
+  }, [books, query]); // filtering lists [web:64]
 
   function addBook(e) {
-    e.preventDefault();
-    const t = title.trim();
-    const a = author.trim();
-    if (!t || !a) return;
+    e.preventDefault(); // stop page reload on submit [web:74]
+    const title = newTitle.trim();
+    const author = newAuthor.trim();
+    if (!title || !author) return;
     const nextId = books.length ? Math.max(...books.map((b) => b.id)) + 1 : 1;
-    setBooks([...books, { id: nextId, title: t, author: a }]); // immutable add [web:52]
-    setTitle("");
-    setAuthor("");
+    setBooks((prev) => [...prev, { id: nextId, title, author }]); // immutable update [web:52]
+    setNewTitle("");
+    setNewAuthor("");
   }
 
   function removeBook(id) {
-    setBooks(books.filter((b) => b.id !== id)); // immutable remove [web:52]
+    setBooks((prev) => prev.filter((b) => b.id !== id)); // immutable remove [web:52]
   }
 
   return (
-    <div style={{ display: "grid", gap: 18 }}>
-      {/* Top panel */}
-      <Panel>
-        <Heading>Library Management</Heading>
+    <div className="page">
+      {/* Panel 1: Interactive */}
+      <section className="panel">
+        <h2 className="heading">Library Management</h2>
 
         <input
+          className="search"
           placeholder="Search by title or author"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          style={styles.search}
         />
 
-        <form onSubmit={addBook} style={styles.formRow}>
+        <form onSubmit={addBook} className="formRow">
           <input
+            className="shortInput"
             placeholder="New book title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            style={styles.shortInput}
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
           />
           <input
+            className="shortInput"
             placeholder="New book author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            style={styles.shortInput}
+            value={newAuthor}
+            onChange={(e) => setNewAuthor(e.target.value)}
           />
-          <button type="submit" style={styles.addBtn}>Add Book</button>
+          <button type="submit" className="addBtn">Add Book</button>
         </form>
 
-        <List>
-          {books.map((b) => (
-            <ListItem key={b.id}>
-              <div>
-                <strong>{b.title}</strong> by {b.author} {/* keys + bold title [web:66] */}
+        <div className="list">
+          {visible.map((b) => (
+            <div key={b.id} className="item">
+              <div className="text">
+                <strong>{b.title}</strong> by {b.author}
               </div>
-              <button style={styles.removeBtn} onClick={() => removeBook(b.id)}>
+              <button className="removeBtn" onClick={() => removeBook(b.id)}>
                 Remove
               </button>
-            </ListItem>
+            </div>
           ))}
-        </List>
-      </Panel>
+        </div>
+      </section>
 
-      {/* Bottom panel shows filtered state "great" */}
-      <Panel>
-        <Heading>Library Management</Heading>
+      {/* Panel 2: Static preview filtered to “great” */}
+      <section className="panel">
+        <h2 className="heading">Library Management</h2>
 
-        <input
-          value="great"
-          readOnly
-          style={styles.search}
-        />
+        <input className="search" value="great" readOnly />
 
-        <form onSubmit={(e) => e.preventDefault()} style={styles.formRow}>
-          <input placeholder="New book title" style={styles.shortInput} />
-          <input placeholder="New book author" style={styles.shortInput} />
-          <button style={styles.addBtn} disabled>Add Book</button>
+        <form onSubmit={(e) => e.preventDefault()} className="formRow">
+          <input className="shortInput" placeholder="New book title" />
+          <input className="shortInput" placeholder="New book author" />
+          <button className="addBtn" disabled>Add Book</button>
         </form>
 
-        <List>
-          {filtered
-            .filter((b) =>
-              b.title.toLowerCase().includes("great")
-            )
+        <div className="list">
+          {books
+            .filter((b) => b.title.toLowerCase().includes("great"))
             .map((b) => (
-              <ListItem key={`preview-${b.id}`}>
-                <div>
+              <div key={`static-${b.id}`} className="item">
+                <div className="text">
                   <strong>{b.title}</strong> by {b.author}
                 </div>
-                <button style={styles.removeBtn}>Remove</button>
-              </ListItem>
+                <button className="removeBtn">Remove</button>
+              </div>
             ))}
-        </List>
-      </Panel>
+        </div>
+      </section>
     </div>
   );
 }
-
-function Panel({ children }) {
-  return (
-    <div style={styles.panel}>
-      {children}
-    </div>
-  );
-}
-
-function Heading({ children }) {
-  return <h2 style={styles.heading}>{children}</h2>;
-}
-
-function List({ children }) {
-  return <div style={{ display: "grid", gap: 10 }}>{children}</div>;
-}
-
-function ListItem({ children }) {
-  return (
-    <div style={styles.item}>
-      {children}
-    </div>
-  );
-}
-
-const styles = {
-  panel: {
-    border: "2px solid #222",
-    padding: 12,
-    borderRadius: 2,
-    background: "#fff",
-  },
-  heading: { margin: "4px 0 12px 0", fontSize: 26, fontWeight: 700 },
-  search: {
-    width: 320,
-    padding: 8,
-    border: "1px solid #cfcfcf",
-    borderRadius: 2,
-    marginBottom: 12,
-  },
-  formRow: {
-    display: "flex",
-    gap: 12,
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  shortInput: {
-    width: 220,
-    padding: 8,
-    border: "1px solid #cfcfcf",
-    borderRadius: 2,
-  },
-  addBtn: {
-    padding: "8px 12px",
-    border: "1px solid #bfbfbf",
-    borderRadius: 2,
-    background: "#eee",
-    cursor: "pointer",
-  },
-  item: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    border: "1px solid #ddd",
-    borderRadius: 6,
-    padding: "10px 12px",
-    background: "#fff",
-  },
-  removeBtn: {
-    padding: "6px 10px",
-    border: "1px solid #bfbfbf",
-    borderRadius: 4,
-    background: "#eee",
-    cursor: "pointer",
-  },
-};
