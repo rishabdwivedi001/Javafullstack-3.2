@@ -1,0 +1,75 @@
+/* Force readable colors in Nimbus preview (dark UI) */
+:root {
+  color-scheme: light;
+}
+html, body, #root {
+  background: #ffffff;
+  color: #111111;          /* visible text color */
+  font-family: system-ui, Arial, sans-serif;
+  margin: 0;
+}
+
+/* Layout matching the screenshot */
+.page {
+  display: grid;
+  gap: 18px;
+  padding: 8px;
+}
+.panel {
+  border: 2px solid #222;
+  border-radius: 2px;
+  background: #fff;        /* ensure white cards */
+  padding: 12px;
+}
+.heading {
+  margin: 4px 0 12px 0;
+  font-size: 26px;
+  font-weight: 700;
+}
+.search {
+  width: 320px;
+  padding: 8px;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+  margin-bottom: 12px;
+}
+.formRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.shortInput {
+  width: 220px;
+  padding: 8px;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+  background: #fff;
+  color: #111;
+}
+.addBtn,
+.removeBtn {
+  padding: 8px 12px;
+  border: 1px solid #bfbfbf;
+  border-radius: 4px;
+  background: #eee;
+  color: #111;
+  cursor: pointer;
+}
+.list {
+  display: grid;
+  gap: 10px;
+}
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: #fff;
+  color: #111;             /* enforce dark text in cards */
+}
+.text {
+  color: #111;
+}
